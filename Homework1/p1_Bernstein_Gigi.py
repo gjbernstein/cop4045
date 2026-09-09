@@ -41,8 +41,6 @@ while True:
 
     while x <= max_x:
         xs.append(x)
-        # edit this function
-        # y = 2 * math.sin(2*math.pi*1*x)
         y = a*x**2 * b*x * c
         ys.append(y)
         x += dx
