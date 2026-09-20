@@ -1,0 +1,147 @@
+1. def line_number(file_name1:str, file_name2:str):
+
+2.     try:
+
+3.         file1 = open(file_name1, "r") # open file to read from
+
+4.         file2 = open(file_name2, "w") # open file to write to
+
+5.         line_num = 0
+
+6.         for line in file1: # iterate through each line in the file
+
+7.             line_num += 1
+
+8.             print(f"{line_num}. {line}", file=file2) # write the line number and the line to the output file
+
+9.         file1.close()
+
+10.         file2.close()
+
+11.     except FileNotFoundError:
+
+12.         print(f"Unable to find a file with name: {file_name1} . Check spelling and placement of file.")
+
+13.         raise
+
+14.     except:
+
+15.         print("Unexpected Error")
+
+16.         raise
+
+17. 
+
+18. def parse_functions(file_name:str): 
+
+19.     ''' reads and parses the Python file and returns a tuple of tuples where each tuple
+
+20.     has its element 0 the line number of the function definition, element 1 the function name, element 2 the
+
+21.     formal argument list as a string, and element 3 the function code as a string (signature and body), with
+
+22.     all empty lines and comments removed.'''   
+
+23.     try:
+
+24.         list_of_tuples = [] # create an empty list to hold the functions' tuples
+
+25.         file = open(file_name, "r") # open the file to read from
+
+26.         line_num = 0 # initialize the line number counter
+
+27.         func_num = -1 # initialize the function counter
+
+28.         for line in file: # iterate through each line in the file
+
+29.             input_str = "" # initialize the input string to hold the argument list
+
+30.             line_num += 1 # increment the line number counter
+
+31.             if line.startswith("def"): # if the line is the beginning of a function definition
+
+32.                 if func_num >= 0: # if this is not the first function
+
+33.                     inner_tuple += (code, ) # add the previous function's code to the inner tuple
+
+34.                     list_of_tuples.append(inner_tuple) # add the inner tuple to the list of tuples
+
+35.                 func_num += 1 # increment the function counter
+
+36.                 inner_tuple = (line_num, ) # create a new inner tuple with the line number of the function definition
+
+37.                 code = "" # initialize the code string to hold the function code
+
+38.                 func_name = line.split("(")[0].strip("def ") # extract the function name from the line
+
+39.                 inner_tuple += (func_name, ) # add the function name to the inner tuple
+
+40.                 func_input = False # bool to show if it is the argument or not
+
+41.                 for char in line:
+
+42.                     if char == ")":
+
+43.                         func_input = False
+
+44.                     if func_input == True:
+
+45.                         input_str += char
+
+46.                     if char == "(":
+
+47.                         func_input = True
+
+48.                 inner_tuple += (input_str,)
+
+49.             if func_num >= 0:
+
+50.                     if not line.startswith("#"):
+
+51.                         if "#" in line:
+
+52.                             line = line.split(" #")[0] + "\n" # remove comments from the line
+
+53.                         if line.strip() != "": # if the line is not empty
+
+54.                             if line.startswith("def") or line.startswith("    "):
+
+55.                                 line = line.replace("    ", "\t")
+
+56.                                 code += line
+
+57.         inner_tuple += (code, ) # add the last function's code to the inner tuple
+
+58.         list_of_tuples.append(inner_tuple) # add the last function's inner tuple to the list of tuples
+
+59.         file.close()
+
+60.         list_of_tuples.sort(key=lambda x: x[1]) # sort the list of tuples by the name of the function
+
+61.         return tuple(list_of_tuples)
+
+62.     except FileNotFoundError:
+
+63.         print(f"Unable to find a file with name: {file_name} . Check spelling and placement of file.")
+
+64.         raise
+
+65.     except:
+
+66.         print("Unexpected Error")
+
+67.         raise
+
+68. 
+
+69. def main():
+
+70.     line_number("p1_Bernstein_Gigi.py", "test_file.txt")
+
+71.     print(parse_functions("funs.py"))
+
+72. 
+
+73. if __name__ == "__main__":
+
+74.     main()
