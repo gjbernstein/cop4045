@@ -58,3 +58,4 @@ dictionary with entries i:c where i is the index of character c in text only for
 text = "Hello world"
 f = {num: c for num, c in enumerate(text) if c.lower() in 'aeiou'}
 print(f"\n\nf = {f}")
+
