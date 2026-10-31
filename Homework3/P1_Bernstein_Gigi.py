@@ -129,6 +129,7 @@ class NVector:
         return NVector(*[0] * n)
 
 def main() -> None:
+    print("Z Number: Z23652485")
     """Run checks for NVector using the testif helper."""
     vector = NVector(1, 2, 3, 4)
     sequence_vector = NVector([1, 2, 3, 4])
