@@ -361,6 +361,7 @@ def main():
     turtle.goto(160, -225)
     turtle.write("Curved", align="center", font=("Arial", 14, "normal"))
     turtle.done()
+    
 
 if __name__ == "__main__":
     main()
