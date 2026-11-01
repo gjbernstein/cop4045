@@ -1,4 +1,119 @@
 
+import math
+import turtle
+
+
+def _leaf_centerline_point(progress: float, blade_length: float, curve_amount: float) -> tuple[float, float]:
+    return curve_amount * math.sin(math.pi * progress), blade_length * progress
+
+
+def _draw_leaf_vein(
+    length: float,
+    base_heading: float,
+    side: int,
+    recursion_level: int,
+    curved: bool,
+    branch_angle: float = 52,
+) -> None:
+    start_position = turtle.position()
+    turtle.setheading(base_heading + side * branch_angle)
+
+    if curved:
+        for _ in range(10):
+            turtle.forward(length / 10)
+            turtle.left(side * 0.8)
+    else:
+        turtle.forward(length)
+
+    end_heading = turtle.heading()
+    if recursion_level > 1:
+        child_length = length * 0.48
+        _draw_leaf_vein(child_length, end_heading, -1, recursion_level - 1, curved, 34)
+        _draw_leaf_vein(child_length, end_heading, 1, recursion_level - 1, curved, 34)
+
+    turtle.penup()
+    turtle.goto(start_position)
+    turtle.setheading(base_heading)
+    turtle.pendown()
+
+
+def _draw_leaf(
+    recursion_level: int,
+    petiole_length: float,
+    curved: bool,
+    start_position: tuple[float, float],
+) -> None:
+    if recursion_level < 1:
+        raise ValueError("recursion_level must be at least 1")
+    if petiole_length <= 0:
+        raise ValueError("petiole_length must be positive")
+
+    turtle.delay(0)
+    turtle.penup()
+    turtle.goto(start_position)
+    turtle.setheading(90)
+    turtle.pendown()
+    turtle.forward(petiole_length)
+
+    blade_length = petiole_length * 1.5
+    curve_amount = blade_length * 0.24 if curved else 0
+    blade_start = turtle.position()
+
+    if curved:
+        for step in range(1, 41):
+            progress = step / 40
+            x, y = _leaf_centerline_point(progress, blade_length, curve_amount)
+            turtle.goto(blade_start[0] + x, blade_start[1] + y)
+    else:
+        turtle.forward(blade_length)
+
+    station_count = max(4, recursion_level * 2 + 2)
+    for station in range(1, station_count + 1):
+        progress = station / (station_count + 1)
+        if curved:
+            x, y = _leaf_centerline_point(progress, blade_length, curve_amount)
+            tangent = math.degrees(
+                math.atan2(
+                    blade_length,
+                    curve_amount * math.pi * math.cos(math.pi * progress),
+                )
+            )
+        else:
+            x, y = 0, blade_length * progress
+            tangent = 90
+
+        turtle.penup()
+        turtle.goto(blade_start[0] + x, blade_start[1] + y)
+        turtle.setheading(tangent)
+        turtle.pendown()
+        vein_length = blade_length * 0.34 * math.sin(math.pi * progress)
+        _draw_leaf_vein(vein_length, tangent, -1, recursion_level, curved)
+        _draw_leaf_vein(vein_length, tangent, 1, recursion_level, curved)
+
+    turtle.penup()
+    turtle.goto(blade_start[0] + curve_amount * math.sin(math.pi), blade_start[1] + blade_length)
+    turtle.setheading(90)
+    turtle.pendown()
+
+
+def draw_leaf_straight(
+    recursion_level: int,
+    petiole_length: float,
+    start_position: tuple[float, float] = (0, 0),
+) -> None:
+    '''draw a vertical, straight-midrib leaf with recursively branching veins'''
+    _draw_leaf(recursion_level, petiole_length, curved=False, start_position=start_position)
+
+
+def draw_leaf_curved(
+    recursion_level: int,
+    petiole_length: float,
+    start_position: tuple[float, float] = (0, 0),
+) -> None:
+    '''draw a vertical leaf with a curved midrib and curved recursive veins'''
+    _draw_leaf(recursion_level, petiole_length, curved=True, start_position=start_position)
+
+
 class ParkingPermit:
     '''Base class for parking permits.
     attributes:
@@ -141,7 +256,7 @@ class FacultyPermit(ParkingPermit):
 def main():
     '''main function to demonstrate the use of StudentPermit and FacultyPermit classes.'''
     student_permit = StudentPermit("Abby West", 6, {"monthly": 50}, 1)
-    faculty_permit = FacultyPermit("JStella Rose", 12, {"monthly": 100}, True)
+    faculty_permit = FacultyPermit("Stella Rose", 12, {"monthly": 100}, True)
 
     print("name: Gigi Bernstein")
     print("Z number: Z23652485")
@@ -151,6 +266,18 @@ def main():
 
     print(faculty_permit)
     print(f"faculty permit cost: {faculty_permit.cost()}")
+
+    print("\nleaf drawings:")
+    turtle.setup(width=700, height=500)
+    turtle.title("recursive leaves")
+    draw_leaf_straight(2, 80, (-160, -180))
+    draw_leaf_curved(2, 80, (160, -180))
+    turtle.penup()
+    turtle.goto(-230, -225)
+    turtle.write("Straight", align="center", font=("Arial", 14, "normal"))
+    turtle.goto(160, -225)
+    turtle.write("Curved", align="center", font=("Arial", 14, "normal"))
+    turtle.done()
 
 if __name__ == "__main__":
     main()
