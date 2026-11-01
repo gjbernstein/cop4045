@@ -29,6 +29,60 @@ def test_strB() -> bool:
     ))
 
 
+def Cnk_m(n: int, k: int, memo: dict[tuple[int, int], int] | None = None) -> int:
+    '''return n choose k recursively, saving intermediate results in memo'''
+    if type(n) is not int or type(k) is not int:
+        raise TypeError("n and k must be integers")
+    if n < 0 or k < 0 or k > n:
+        raise ValueError("n and k must satisfy n >= k >= 0")
+    if memo is None:
+        memo = {}
+
+    if k == 0 or k == n:
+        return 1
+    key = (n, k)
+    if key not in memo:
+        memo[key] = Cnk_m(n - 1, k - 1, memo) + Cnk_m(n - 1, k, memo)
+    return memo[key]
+
+
+def test_Cnk_m() -> bool:
+    '''check the binomial coefficient base cases and recursive values'''
+    return all((
+        testif(Cnk_m(0, 0) == 1, "Cnk_m zero", "returned 1", "incorrect zero case"),
+        testif(Cnk_m(8, 0) == 1, "Cnk_m k zero", "returned 1", "incorrect k=0 case"),
+        testif(Cnk_m(8, 8) == 1, "Cnk_m k equals n", "returned 1", "incorrect k=n case"),
+        testif(Cnk_m(30, 15) == 155117520, "Cnk_m recursive", "returned 155117520", "incorrect coefficient"),
+    ))
+
+
+def run_Cnk() -> None:
+    '''print several binomial coefficients for a console demonstration'''
+    for n, k in ((5, 2), (20, 10), (30, 15)):
+        print(f"C({n}, {k}) = {Cnk_m(n, k)}")
+
+
+def make_pairs(seq1: list, seq2: list, accumulator: list | None = None) -> list:
+    '''recursively pair corresponding elements until either list ends'''
+    if accumulator is None:
+        accumulator = []
+    if not seq1 or not seq2:
+        return accumulator
+    accumulator.append((seq1[0], seq2[0]))
+    return make_pairs(seq1[1:], seq2[1:], accumulator)
+
+
+def test_make_pairs() -> bool:
+    '''check paired values, unequal lengths, and empty-list boundaries'''
+    return all((
+        testif(make_pairs([1, 2, 3], [4, 5, 6]) == [(1, 4), (2, 5), (3, 6)], "make_pairs equal", "paired all values", "incorrect equal-length pairs"),
+        testif(make_pairs([1, 2, 3], [4, 5]) == [(1, 4), (2, 5)], "make_pairs shorter second", "stopped at second list", "incorrect shorter-second result"),
+        testif(make_pairs([1, 2], [4, 5, 6]) == [(1, 4), (2, 5)], "make_pairs shorter first", "stopped at first list", "incorrect shorter-first result"),
+        testif(make_pairs([], [4, 5, 6]) == [], "make_pairs empty first", "returned empty list", "incorrect empty-first result"),
+        testif(make_pairs([1, 2, 3], []) == [] and make_pairs([], []) == [], "make_pairs empty second and both", "returned empty lists", "incorrect empty-list result"),
+    ))
+
+
 def _leaf_centerline_point(progress: float, blade_length: float, curve_amount: float) -> tuple[float, float]:
     return curve_amount * math.sin(math.pi * progress), blade_length * progress
 
@@ -282,6 +336,8 @@ class FacultyPermit(ParkingPermit):
 def main():
     '''main function to demonstrate the use of StudentPermit and FacultyPermit classes.'''
     test_strB()
+    test_Cnk_m()
+    test_make_pairs()
     student_permit = StudentPermit("Abby West", 6, {"monthly": 50}, 1)
     faculty_permit = FacultyPermit("Stella Rose", 12, {"monthly": 100}, True)
 
