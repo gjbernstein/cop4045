@@ -1,6 +1,32 @@
 
 import math
 import turtle
+from testif import testif
+
+
+def strB(n: int, base: int = 10) -> str:
+    '''return n as a string of digits in base, using A-Z for values above 9'''
+    if type(n) is not int or type(base) is not int:
+        raise TypeError("n and base must be integers")
+    if n < 0:
+        raise ValueError("n must be non-negative")
+    if not 2 <= base <= 26:
+        raise ValueError("base must be between 2 and 26")
+
+    digits = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    if n < base:
+        return digits[n]
+    return strB(n // base, base) + digits[n % base]
+
+
+def test_strB() -> bool:
+    '''check zero, decimal output, alphabetic digits, and a large conversion'''
+    return all((
+        testif(strB(0) == "0", "strB zero", "returned 0", "incorrect zero representation"),
+        testif(strB(1234) == "1234", "strB decimal", "returned 1234", "incorrect decimal representation"),
+        testif(strB(1234, 16) == "4D2", "strB hexadecimal", "returned 4D2", "incorrect hexadecimal representation"),
+        testif(strB(123456789, 26) == "AA44A1", "strB base 26", "returned AA44A1", "incorrect base-26 representation"),
+    ))
 
 
 def _leaf_centerline_point(progress: float, blade_length: float, curve_amount: float) -> tuple[float, float]:
@@ -255,6 +281,7 @@ class FacultyPermit(ParkingPermit):
 
 def main():
     '''main function to demonstrate the use of StudentPermit and FacultyPermit classes.'''
+    test_strB()
     student_permit = StudentPermit("Abby West", 6, {"monthly": 50}, 1)
     faculty_permit = FacultyPermit("Stella Rose", 12, {"monthly": 100}, True)
 
